@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fighting Shadows</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      font-family: Georgia, serif;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #2c3e50, #4b79a1);
+    }
+    #poem-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 700px;
+      text-align: center;
+      font-size: 1.5rem;
+      line-height: 1.8;
+      color: white;
+      z-index: 2;
+    }
+    #poem-container h1 {
+      margin-bottom: 1em;
+      font-size: 2rem;
+      opacity: 0;
+    }
+    #poem-container span {
+      display: block;
+      opacity: 0;
+      margin: 0.5em 0;
+    }
+    #start-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      background: #555;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 3;
+    }
+    #start-button:hover {
+      background: #888;
+    }
+    #help-button {
+      display: none;
+      margin-top: 20px;
+      padding: 12px 25px;
+      font-size: 1.2rem;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 2s;
+      opacity: 0;
+      z-index: 4;
+      position: relative;
+    }
+    #help-button:hover {
+      background: #c0392b;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <button id="start-button">Start</button>
+  <audio id="bg-music" src="background.mp3" loop></audio>
+  <canvas id="crow-canvas"></canvas>
+  <div id="poem-container">
+    <h1>Fighting Shadows</h1>
+    <span>Beneath the trees a young boy stands,</span>
+    <span>A stick-sword trembling in his hands.</span>
+    <span>The creek still flows, the grasses sway,</span>
+    <span>But shadows climb and block the day.</span>
+
+    <span>A crow drifts low, its wings outspread,</span>
+    <span>It flits through thoughts inside his head.</span>
+    <span>He swings, he shouts, yet still they stay—</span>
+    <span>Dark whispers never drift away.</span>
+
+    <span>The sunlight breaks, the branches part,</span>
+    <span>A fragile warmth against his heart.</span>
+    <span>Though battles rage and spirits tire,</span>
+    <span>The boy still guards his fading fire.</span>
+
+    <a id="help-button" href="https://suicidepreventionlifeline.org" target="_blank">You are loved! Need To Talk? Click Here</a>
+  </div>
+
+  <script>
+    const startButton = document.getElementById('start-button');
+    const poemContainer = document.getElementById('poem-container');
+    const title = poemContainer.querySelector('h1');
+    const lines = poemContainer.querySelectorAll('span');
+    const helpButton = document.getElementById('help-button');
+    const canvas = document.getElementById('crow-canvas');
+    const ctx = canvas.getContext('2d');
+    const bgMusic = document.getElementById('bg-music');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    const crowImage = new Image();
+    crowImage.src = 'crow.png';
+
+    const crows = [];
+    for (let i = 0; i < 6; i++) {
+      crows.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        speed: 0.5 + Math.random() * 1,
+        size: 40 + Math.random() * 30
+      });
+    }
+
+    function drawCrows() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      crows.forEach(crow => {
+        ctx.globalAlpha = 0.4;
+        ctx.drawImage(crowImage, crow.x, crow.y, crow.size, crow.size);
+        crow.x += crow.speed;
+        if (crow.x > canvas.width + crow.size) {
+          crow.x = -crow.size;
+          crow.y = Math.random() * canvas.height;
+        }
+      });
+      requestAnimationFrame(drawCrows);
+    }
+
+    function fadeInLines(index = -1) {
+      if (index === -1) {
+        // Fade in title first
+        title.style.transition = 'opacity 4s';
+        title.style.opacity = 1;
+        setTimeout(() => fadeInLines(0), 3000);
+      } else if (index < lines.length) {
+        lines[index].style.transition = 'opacity 4s';
+        lines[index].style.opacity = 1;
+        setTimeout(() => fadeInLines(index + 1), 3000);
+      } else if (index === lines.length) {
+        // Fade in help button after all lines
+        helpButton.style.display = 'inline-block';
+        setTimeout(() => {
+          helpButton.style.opacity = 1;
+        }, 100);
+      }
+    }
+
+    startButton.addEventListener('click', () => {
+      startButton.style.display = 'none';
+      bgMusic.play();
+      fadeInLines();
+      drawCrows();
+    });
+  </script>
+</body>
+</html>
